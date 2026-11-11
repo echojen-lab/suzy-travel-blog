@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wander With Suzy</title>
+  <meta name="description" content="Wander With Suzy — Stories From Every Corner of the World." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" integrity="sha256-YU3qCpj/P06tdPBJGPax0bm6Q1wltfwjsho5TR4+TYc=" crossorigin="" />
+
+  <style>
+    :root {
+      --cream: #FFF8F0;
+      --cream-deep: #F6EADB;
+      --coral: #FF6B6B;
+      --coral-dark: #E85555;
+      --forest: #2D6A4F;
+      --forest-dark: #1F4D39;
+      --ink: #2B2B2B;
+      --muted: #6B6560;
+      --card: #FFFFFF;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(45, 106, 79, 0.10);
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", system-ui, -apple-system, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- Navigation ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(255, 248, 240, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      font-family: var(--serif); font-weight: 700; font-size: 1.35rem;
+      color: var(--forest); text-decoration: none;
+    }
+    .logo span { color: var(--coral); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; font-weight: 500; color: var(--forest);
+      position: relative; padding: 4px 0;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; bottom: -2px;
+      width: 0; height: 2px; background: var(--coral);
+      transition: width .25s ease;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    .nav-toggle {
+      display: none; background: none; border: 0; cursor: pointer;
+      width: 44px; height: 44px; align-items: center; justify-content: center;
+    }
+    .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+      display: block; width: 22px; height: 2px; background: var(--forest);
+      position: relative; transition: transform .25s ease, background .25s ease;
+    }
+    .nav-toggle span::before, .nav-toggle span::after { content: ""; position: absolute; left: 0; }
+    .nav-toggle span::before { top: -7px; }
+    .nav-toggle span::after { top: 7px; }
+    .nav-toggle[aria-expanded="true"] span { background: transparent; }
+    .nav-toggle[aria-expanded="true"] span::before { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span::after { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 120px 0 110px; text-align: center;
+    }
+    .hero::before, .hero::after {
+      content: ""; position: absolute; border-radius: 50%; z-index: -1;
+    }
+    .hero::before {
+      width: 520px; height: 520px; background: rgba(255, 107, 107, 0.12);
+      top: -180px; right: -140px;
+    }
+    .hero::after {
+      width: 420px; height: 420px; background: rgba(45, 106, 79, 0.08);
+      bottom: -200px; left: -120px;
+    }
+    .eyebrow {
+      display: inline-block; font-size: .8rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--coral);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-family: var(--serif); font-weight: 700; color: var(--forest);
+      font-size: clamp(2.8rem, 8vw, 6rem); line-height: 1.02; letter-spacing: -0.01em;
+    }
+    .hero h1 em { font-style: italic; font-weight: 500; color: var(--coral); }
+    .tagline {
+      font-family: var(--serif); font-style: italic;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem); color: var(--muted);
+      margin: 22px auto 40px; max-width: 34ch;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--coral); color: #fff; text-decoration: none;
+      font-weight: 700; padding: 14px 30px; border-radius: 999px;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.35);
+      transition: transform .2s ease, background .2s ease;
+    }
+    .btn:hover { background: var(--coral-dark); transform: translateY(-2px); }
+
+    /* ---------- Section headings ---------- */
+    section { padding: 80px 0; }
+    .section-head { text-align: center; margin-bottom: 36px; }
+    .section-head h2 {
+      font-family: var(--serif); color: var(--forest);
+      font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.15;
+    }
+    .section-head p { color: var(--muted); margin-top: 10px; }
+
+    /* ---------- Map ---------- */
+    .map-section { background: var(--cream-deep); }
+    .filters {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+      margin-bottom: 28px;
+    }
+    .filter-btn {
+      font-family: var(--sans); font-size: .95rem; font-weight: 500;
+      padding: 10px 22px; border-radius: 999px; cursor: pointer;
+      border: 2px solid var(--forest); background: transparent; color: var(--forest);
+      transition: all .2s ease;
+    }
+    .filter-btn:hover { background: rgba(45, 106, 79, 0.08); }
+    .filter-btn.active { background: var(--forest); color: #fff; }
+    .filter-btn .count {
+      display: inline-block; margin-left: 6px; font-size: .75rem; opacity: .7;
+    }
+
+    #map {
+      height: 540px; width: 100%;
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      border: 4px solid #fff; background: #EAF2EE;
+    }
+
+    /* Map pins (coral circles) */
+    .pin { background: none; border: 0; }
+    .pin span {
+      display: block; width: 100%; height: 100%; border-radius: 50%;
+      background: var(--coral); border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: transform .2s ease, background .2s ease;
+    }
+    .pin:hover span, .pin:focus-visible span { transform: scale(1.3); background: var(--coral-dark); }
+    .pin:focus-visible { outline: none; }
+
+    /* Cluster badges: numbered coral circle with a soft halo */
+    .cluster { background: none; border: 0; }
+    .cluster div {
+      width: 100%; height: 100%; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--coral); color: #fff;
+      font-family: var(--sans); font-weight: 700; font-size: 15px;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 6px rgba(255, 107, 107, 0.28), 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform .2s ease, background .2s ease;
+    }
+    .cluster:hover div { transform: scale(1.1); background: var(--coral-dark); }
+
+    /* Staggered drop-in when the map first loads. The animation sits on the INNER
+       element because Leaflet positions the outer icon with its own transform.
+       "backwards" keeps each pin hidden until its turn, then hands control back
+       to the hover styles once it lands. --d is set per pin in the script. */
+    .pins-intro .pin span,
+    .pins-intro .cluster div {
+      animation: pin-drop .7s cubic-bezier(.3, .7, .4, 1) backwards;
+      animation-delay: var(--d, 0ms);
+    }
+    @keyframes pin-drop {
+      0%   { opacity: 0; transform: translateY(-34px) scale(.9); }
+      55%  { opacity: 1; transform: translateY(0) scale(1.08, .88); }
+      75%  { transform: translateY(-7px) scale(.97, 1.04); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* Leaflet popup styling */
+    .leaflet-popup-content-wrapper {
+      border-radius: 14px; padding: 0; overflow: hidden; background: #fff;
+      box-shadow: 0 6px 20px rgba(45, 106, 79, 0.14), 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .leaflet-popup-tip { box-shadow: 0 3px 8px rgba(45, 106, 79, 0.12); }
+    .leaflet-popup-content { margin: 0; width: 260px !important; }
+
+    /* Close button: small coral circle with a white X */
+    .leaflet-container a.leaflet-popup-close-button {
+      top: 10px; right: 10px; width: 26px; height: 26px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: var(--coral); color: #fff;
+      font: 700 18px/1 var(--sans);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: background .2s ease, transform .2s ease;
+    }
+    .leaflet-container a.leaflet-popup-close-button span { display: block; margin-top: -1px; }
+    .leaflet-container a.leaflet-popup-close-button:hover,
+    .leaflet-container a.leaflet-popup-close-button:focus-visible {
+      background: var(--coral-dark); color: #fff; transform: scale(1.1);
+    }
+
+    /* Card: full-width photo on top, then country, description, link */
+    .popup-card img {
+      display: block; width: 100%; height: 180px; object-fit: cover;
+      border-radius: 14px 14px 0 0; background: var(--cream-deep);
+    }
+    .popup-body { padding: 14px 18px 18px; font-family: var(--sans); }
+    .popup-body h3 {
+      font-family: var(--serif); font-weight: 700; color: var(--forest);
+      font-size: 1.3rem; line-height: 1.2; margin: 0;
+    }
+    .popup-body p {
+      margin: 6px 0 12px !important; font-size: .85rem; color: var(--muted); line-height: 1.5;
+    }
+    .popup-link {
+      color: var(--coral) !important; font-weight: 700; text-decoration: none; font-size: .9rem;
+    }
+    .popup-link:hover { color: var(--coral-dark) !important; text-decoration: underline; }
+
+    /* Category tag (used on the Latest Stories cards) */
+    .popup-tag {
+      display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--forest);
+      background: rgba(45, 106, 79, 0.1); padding: 3px 10px; border-radius: 999px;
+    }
+
+    /* ---------- Blog cards ---------- */
+    .posts {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+    }
+    .post-card {
+      background: var(--card); border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .post-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(45,106,79,0.16); }
+    .post-thumb { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--cream-deep); }
+    .post-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .post-card:hover .post-thumb img { transform: scale(1.05); }
+    .post-thumb .popup-tag {
+      position: absolute; top: 14px; left: 14px; background: var(--cream); color: var(--forest);
+    }
+    .post-body { padding: 22px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+    .post-date { font-size: .82rem; color: var(--coral); font-weight: 700; letter-spacing: .04em; }
+    .post-body h3 {
+      font-family: var(--serif); color: var(--forest); font-size: 1.35rem;
+      line-height: 1.25; margin: 8px 0 10px;
+    }
+    .post-body p { color: var(--muted); font-size: .96rem; flex: 1; }
+    .read-more {
+      margin-top: 16px; color: var(--coral); font-weight: 700; text-decoration: none;
+      align-self: flex-start;
+    }
+    .read-more:hover { text-decoration: underline; }
+    .center { text-align: center; margin-top: 44px; }
+
+    /* ---------- About ---------- */
+    .about {
+      display: grid; grid-template-columns: 1fr 1.3fr; gap: 56px; align-items: center;
+    }
+    .about img {
+      border-radius: 50% 50% var(--radius) var(--radius); aspect-ratio: 4/5;
+      object-fit: cover; width: 100%; box-shadow: var(--shadow);
+      background: var(--cream-deep);
+    }
+    .about h2 { font-family: var(--serif); color: var(--forest); font-size: clamp(2rem, 4vw, 2.6rem); margin-bottom: 16px; }
+    .about p { color: var(--muted); margin-bottom: 14px; }
+    .stats { display: flex; gap: 36px; margin-top: 24px; flex-wrap: wrap; }
+    .stat strong { display: block; font-family: var(--serif); font-size: 2rem; color: var(--coral); line-height: 1; }
+    .stat span { font-size: .85rem; color: var(--muted); }
+
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .posts { grid-template-columns: repeat(2, 1fr); }
+      .about { grid-template-columns: 1fr; gap: 36px; }
+      .about img { max-width: 360px; margin: 0 auto; }
+    }
+    @media (max-width: 720px) {
+      .container { padding: 0 16px; }
+      .nav-toggle { display: inline-flex; }
+      .nav-links {
+        position: absolute; top: 68px; left: 0; right: 0;
+        flex-direction: column; gap: 0; background: var(--cream);
+        border-bottom: 1px solid rgba(45,106,79,0.12);
+        max-height: 0; overflow: hidden; transition: max-height .3s ease;
+      }
+      .nav-links.open { max-height: 240px; }
+      .nav-links li a { display: block; padding: 16px 24px; }
+      .nav-links a::after { display: none; }
+      .hero { padding: 80px 0 72px; }
+      section { padding: 56px 0; }
+      #map { height: 420px; border-width: 3px; }
+      .posts { grid-template-columns: 1fr; }
+      .filter-btn { padding: 8px 16px; font-size: .9rem; }
+      .leaflet-popup-content { width: 240px !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="./footer.css" />
+  <script src="./reveal.js" defer></script>
+</head>
+<body>
+
+  <!-- Sticky Navigation -->
+  <nav class="nav" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">Wander<span>.</span>Suzy</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="./blog.html">Blog</a></li>
+        <li><a href="./about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero" id="home">
+    <div class="container">
+      <span class="eyebrow">A Travel Journal</span>
+      <h1>Wander <em>With</em> Suzy</h1>
+      <p class="tagline">Stories From Every Corner of the World.</p>
+      <a href="#map-section" class="btn">Explore the Map →</a>
+    </div>
+  </header>
+
+  <!-- Map -->
+  <section class="map-section" id="map-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Where I've Wandered</h2>
+        <p>Tap a pin to read the story behind each place.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filter destinations">
+        <button class="filter-btn active" data-filter="All" aria-pressed="true">All</button>
+        <button class="filter-btn" data-filter="Culture" aria-pressed="false">Culture</button>
+        <button class="filter-btn" data-filter="Food" aria-pressed="false">Food</button>
+        <button class="filter-btn" data-filter="Adventure" aria-pressed="false">Adventure</button>
+      </div>
+      <div id="map" role="region" aria-label="World map of destinations"></div>
+    </div>
+  </section>
+
+  <!-- Latest Posts -->
+  <section id="blog">
+    <div class="container">
+      <div class="section-head">
+        <h2>Latest Stories</h2>
+        <p>Fresh from the road.</p>
+      </div>
+      <div class="posts">
+        <article class="post-card">
+          <div class="post-thumb">
+            <img src="./images/santorini.jpg" alt="Santorini at sunset" loading="lazy" />
+            <span class="popup-tag">Culture</span>
+          </div>
+          <div class="post-body">
+            <time class="post-date" datetime="2026-11-02">November 2, 2026</time>
+            <h3><a href="./post.html?p=santorini-sunsets" style="text-decoration:none;">Chasing the Perfect Sunset in Santorini</a></h3>
+            <p>Forget Oia's crowds — I found three quiet cliffside spots where the sky turns every shade of peach and nobody's elbowing for a photo.</p>
+            <a href="./post.html?p=santorini-sunsets" class="read-more">Read More →</a>
+          </div>
+        </article>
+        <article class="post-card">
+          <div class="post-thumb">
+            <img src="./images/hanoi-pho.jpg" alt="A bowl of pho in Hanoi" loading="lazy" />
+            <span class="popup-tag">Food</span>
+          </div>
+          <div class="post-body">
+            <time class="post-date" datetime="2026-10-18">October 18, 2026</time>
+            <h3><a href="./post.html?p=hanoi-pho-crawl" style="text-decoration:none;">48 Hours, 11 Bowls of Pho: A Hanoi Food Crawl</a></h3>
+            <p>From 5am broth stalls to tiny plastic stools in the Old Quarter, here's every bowl I ate and the one I'm still dreaming about.</p>
+            <a href="./post.html?p=hanoi-pho-crawl" class="read-more">Read More →</a>
+          </div>
+        </article>
+        <article class="post-card">
+          <div class="post-thumb">
+            <img src="./images/bali.jpg" alt="Ulun Danu Bratan temple on the lake in Bali" loading="lazy" />
+            <span class="popup-tag">Adventure</span>
+          </div>
+          <div class="post-body">
+            <time class="post-date" datetime="2026-10-04">October 4, 2026</time>
+            <h3><a href="./post.html?p=bali-lake-temple" style="text-decoration:none;">Misty Mornings at Bali's Floating Lake Temple</a></h3>
+            <p>An alarm at 4am, a scooter ride up into the highlands, and Ulun Danu Bratan rising out of the lake mist.</p>
+            <a href="./post.html?p=bali-lake-temple" class="read-more">Read More →</a>
+          </div>
+        </article>
+      </div>
+      <div class="center"><a href="./blog.html" class="btn">View All Stories</a></div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="map-section">
+    <div class="container about">
+      <img src="https://picsum.photos/seed/suzy-portrait/480/600" alt="Portrait of Suzy" loading="lazy" />
+      <div>
+        <span class="eyebrow">Hello, I'm Suzy</span>
+        <h2>Collecting stories, one city at a time.</h2>
+        <p>It started with a one-way ticket to Lisbon and a promise to myself to say yes more often. Years later, I'm still saying yes — to the street-food stall with no menu, the overnight train, and the detour that turns into the best day of the trip.</p>
+        <p>This is where I share the places, plates and people that stayed with me — so you can find your own corner of the world.</p>
+        <div class="stats">
+          <div class="stat"><strong>8</strong><span>Countries</span></div>
+          <div class="stat"><strong>156</strong><span>Stories</span></div>
+          <div class="stat"><strong>∞</strong><span>Pastéis de nata</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <a href="./index.html" class="logo">Wander<span>.</span>Suzy</a>
+        <p class="copyright">&copy; 2025 Wander With Suzy</p>
+      </div>
+
+      <!-- Replace these links with Suzy's real profile URLs -->
+      <ul class="socials" aria-label="Suzy on social media">
+        <li>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X (formerly Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </li>
+      </ul>
+
+      <a href="#top" class="back-to-top">Back to top <span class="arrow" aria-hidden="true">↑</span></a>
+    </div>
+    <div class="container">
+      <p class="credit">Destination photos: <a href="https://commons.wikimedia.org/">Wikimedia Commons</a> contributors (CC licensed).</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha256-Hk4dIpcqOSb0hZjgyvFOP+cEmDXUKKNE/tT542ZbNQg=" crossorigin=""></script>
+  <script>
+    // ---------- Destination data ----------
+    const destinations = [
+      { country: "Portugal",  city: "Lisbon",       coords: [38.7223,  -9.1393], category: "Home Base", desc: "Where it all began. Pastéis de nata and golden-hour sunsets.", seed: "lisbon", post: "lisbon-where-it-began" },
+      { country: "Japan",     city: "Tokyo",        coords: [35.6762, 139.6503], category: "Culture",   desc: "Cherry blossoms and beautiful, controlled chaos.",             seed: "tokyo", post: "tokyo-mount-fuji" },
+      { country: "Thailand",  city: "Bangkok",      coords: [13.7563, 100.5018], category: "Food",      desc: "Street food heaven. Every corner is a new flavor.",            seed: "bangkok", post: "bangkok-night-markets" },
+      { country: "Morocco",   city: "Marrakech",    coords: [31.6295,  -7.9811], category: "Adventure", desc: "The souks, the colors, the glorious madness.",                 seed: "marrakech", post: "marrakech-souks" },
+      { country: "Italy",     city: "Amalfi Coast", coords: [40.6340,  14.6027], category: "Culture",   desc: "Lemon trees, cliffside drives, and the bluest water.",         seed: "amalfi", post: "amalfi-coast-drive" },
+      { country: "Vietnam",   city: "Hanoi",        coords: [21.0278, 105.8342], category: "Food",      desc: "Motorbikes, steaming pho, and old quarter magic.",             seed: "hanoi", post: "hanoi-pho-crawl" },
+      { country: "Greece",    city: "Santorini",    coords: [36.3932,  25.4615], category: "Culture",   desc: "Blue domes and impossible sunsets.",                           seed: "santorini", post: "santorini-sunsets" },
+      { country: "Indonesia", city: "Bali",         coords: [-8.3405, 115.0920], category: "Adventure", desc: "Rice terraces at dawn, temple incense, and surf.",             seed: "bali", post: "bali-lake-temple" }
+    ];
+
+    // ---------- Map setup ----------
+    const map = L.map("map", { scrollWheelZoom: false, worldCopyJump: true, minZoom: 2 });
+    // Esri basemap: free, no API key, and works even when index.html is opened
+    // directly from disk (file://). Light-gray base + a separate label layer.
+    const esri = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/";
+    const baseLayer = L.tileLayer(esri + "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors',
+      maxZoom: 16
+    }).addTo(map);
+    map.createPane("labels");
+    map.getPane("labels").style.zIndex = 350;          // above tiles, below pins
+    map.getPane("labels").style.pointerEvents = "none"; // never block pin clicks
+    const labelLayer = L.tileLayer(esri + "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16, pane: "labels"
+    }).addTo(map);
+
+    // Fallback: if the Esri tiles fail to load, switch to standard OpenStreetMap tiles.
+    let tileErrors = 0, switched = false;
+    baseLayer.on("tileerror", () => {
+      if (switched || ++tileErrors < 4) return;
+      switched = true;
+      map.removeLayer(baseLayer);
+      map.removeLayer(labelLayer);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(map);
+    });
+
+    // Enable scroll-zoom only after the user clicks into the map
+    map.on("click", () => map.scrollWheelZoom.enable());
+    map.on("mouseout", () => map.scrollWheelZoom.disable());
+
+    // ---------- Staggered drop-in ----------
+    // Pins drop in one by one, west to east, when the map first loads.
+    const DROP_STAGGER = 140; // ms between pins
+    const dropOrder = new Map(
+      [...destinations].sort((a, b) => a.coords[1] - b.coords[1]).map((d, i) => [d, i])
+    );
+    const mapEl = document.getElementById("map");
+    let introStarted = false;
+    const startDropIn = () => {
+      if (introStarted) return;
+      introStarted = true;
+      mapEl.classList.add("pins-intro");
+      clusters.addLayers(markers);
+      // Remove the intro class once the last pin has landed, so pins that appear
+      // later (zooming, filtering, clusters splitting) show up without bouncing.
+      setTimeout(() => mapEl.classList.remove("pins-intro"),
+        destinations.length * DROP_STAGGER + 900);
+    };
+
+    // Coral circle pin (an HTML marker, so the cluster plugin can group it)
+    const pinIconFor = (d) => L.divIcon({
+      className: "pin",
+      html: `<span style="--d:${dropOrder.get(d) * DROP_STAGGER}ms"></span>`,
+      iconSize: [22, 22]
+    });
+
+    // ---------- Clustering ----------
+    // Nearby pins merge into a numbered badge when zoomed out; clicking a badge
+    // zooms in until it splits apart. At PIN_ZOOM and closer, pins never cluster.
+    const clusters = L.markerClusterGroup({
+      maxClusterRadius: 60,
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      disableClusteringAtZoom: 6,
+      animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      iconCreateFunction: (cluster) => {
+        const n = cluster.getChildCount();
+        const size = n < 4 ? 40 : 48;
+        // A cluster drops in at the turn of its westernmost pin
+        const turn = Math.min(...cluster.getAllChildMarkers().map(m => dropOrder.get(m.data)));
+        return L.divIcon({
+          className: "cluster",
+          html: `<div style="--d:${turn * DROP_STAGGER}ms">${n}</div>`,
+          iconSize: [size, size]
+        });
+      }
+    }).addTo(map);
+
+    // ---------- Click a pin: fly to it, then open its popup ----------
+    const PIN_ZOOM = 6;
+    const popupOptions = { maxWidth: 280, minWidth: 220, autoPanPadding: [20, 20] };
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let flightId = 0; // lets a newer click cancel the popup of an older, unfinished flight
+
+    // Centre the map slightly ABOVE the pin, so the popup (which opens above the pin)
+    // fits on screen without Leaflet having to pan again after the zoom.
+    const centreForPin = (latlng) => {
+      // ~half the popup's height (180px photo + text), so the popup ends up centred
+      const lift = Math.min(map.getSize().y / 2 - 30, 160);
+      const pinPx = map.project(latlng, PIN_ZOOM);
+      return map.unproject(pinPx.subtract([0, lift]), PIN_ZOOM);
+    };
+
+    const flyToPin = (latlng, html) => {
+      const id = ++flightId;
+      map.closePopup();
+      const target = centreForPin(latlng);
+      const openPopup = () => {
+        if (id !== flightId) return; // another pin was clicked mid-flight
+        L.popup(popupOptions).setLatLng(latlng).setContent(html).openOn(map);
+      };
+
+      const alreadyThere = map.getZoom() === PIN_ZOOM &&
+        map.latLngToContainerPoint(target).distanceTo(map.getSize().divideBy(2)) < 5;
+      if (alreadyThere) return openPopup();
+
+      map.once("moveend", openPopup);
+      map.flyTo(target, PIN_ZOOM, reduceMotion ? { animate: false } : { duration: 1.4, easeLinearity: 0.2 });
+    };
+
+    const markers = destinations.map(d => {
+      const marker = L.marker(d.coords, { icon: pinIconFor(d) });
+      const html = `
+        <div class="popup-card">
+          <img src="./images/${d.seed}.jpg" alt="${d.city}, ${d.country}" loading="lazy" />
+          <div class="popup-body">
+            <h3>${d.country}</h3>
+            <p>${d.desc}</p>
+            <a href="./post.html?p=${d.post}" class="popup-link">Read More →</a>
+          </div>
+        </div>`;
+      marker.on("click", () => flyToPin(marker.getLatLng(), html));
+      marker.bindTooltip(`${d.city}, ${d.country}`, { direction: "top", offset: [0, -12] });
+      marker.data = d;
+      return marker;
+    });
+
+    // Pins are added (and drop in) only once the map scrolls into view,
+    // so visitors actually see the animation.
+    if ("IntersectionObserver" in window) {
+      const mapObserver = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) { startDropIn(); mapObserver.disconnect(); }
+      }, { threshold: 0.35 });
+      mapObserver.observe(mapEl);
+    } else {
+      startDropIn();
+    }
+
+    const fitAll = (list) => {
+      const group = L.featureGroup(list);
+      map.fitBounds(group.getBounds(), { padding: [40, 40], maxZoom: 5 });
+    };
+    fitAll(markers);
+
+    // ---------- Filters ----------
+    const buttons = document.querySelectorAll(".filter-btn");
+    buttons.forEach(btn => {
+      const f = btn.dataset.filter;
+      const n = f === "All" ? destinations.length : destinations.filter(d => d.category === f).length;
+      btn.insertAdjacentHTML("beforeend", `<span class="count">${n}</span>`);
+
+      btn.addEventListener("click", () => {
+        buttons.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-pressed", "false"); });
+        btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
+        flightId++;       // cancel any popup still waiting for a pin flight to finish
+        map.closePopup();
+
+        introStarted = true;   // a filter click before the drop-in replaces it
+        const visible = markers.filter(m => f === "All" || m.data.category === f);
+        clusters.clearLayers();
+        clusters.addLayers(visible);   // clusters re-form from only the matching pins
+        if (visible.length) fitAll(visible);
+      });
+    });
+
+    // Keep map sized correctly on resize / orientation change
+    window.addEventListener("resize", () => map.invalidateSize());
+
+    // ---------- Mobile nav ----------
+    const toggle = document.querySelector(".nav-toggle");
+    const links = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+    links.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+      links.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }));
+
+    // ---------- Active nav link on scroll ----------
+    const sections = ["home", "blog", "about"].map(id => document.getElementById(id));
+    const navAnchors = links.querySelectorAll("a");
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navAnchors.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+        }
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    sections.forEach(s => observer.observe(s));
+
+  </script>
+</body>
+</html>

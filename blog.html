@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Wander With Suzy</title>
+  <meta name="description" content="Travel stories from Wander With Suzy — food, culture and adventure from every corner of the world." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #FFF8F0;
+      --cream-deep: #F6EADB;
+      --coral: #FF6B6B;
+      --coral-dark: #E85555;
+      --forest: #2D6A4F;
+      --ink: #2B2B2B;
+      --muted: #6B6560;
+      --card: #FFFFFF;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(45, 106, 79, 0.10);
+      --shadow-hover: 0 22px 48px rgba(45, 106, 79, 0.18);
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", system-ui, -apple-system, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    /* ---------- Navigation (shared with index.html) ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(255, 248, 240, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      font-family: var(--serif); font-weight: 700; font-size: 1.35rem;
+      color: var(--forest); text-decoration: none;
+    }
+    .logo span { color: var(--coral); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; font-weight: 500; color: var(--forest);
+      position: relative; padding: 4px 0;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; bottom: -2px;
+      width: 0; height: 2px; background: var(--coral);
+      transition: width .25s ease;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    .nav-toggle {
+      display: none; background: none; border: 0; cursor: pointer;
+      width: 44px; height: 44px; align-items: center; justify-content: center;
+    }
+    .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+      display: block; width: 22px; height: 2px; background: var(--forest);
+      position: relative; transition: transform .25s ease, background .25s ease;
+    }
+    .nav-toggle span::before, .nav-toggle span::after { content: ""; position: absolute; left: 0; }
+    .nav-toggle span::before { top: -7px; }
+    .nav-toggle span::after { top: 7px; }
+    .nav-toggle[aria-expanded="true"] span { background: transparent; }
+    .nav-toggle[aria-expanded="true"] span::before { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span::after { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ---------- Page header ---------- */
+    .page-head {
+      position: relative; overflow: hidden;
+      padding: 88px 0 64px; text-align: center;
+    }
+    .page-head::before {
+      content: ""; position: absolute; z-index: -1; border-radius: 50%;
+      width: 440px; height: 440px; background: rgba(255, 107, 107, 0.11);
+      top: -200px; right: -120px;
+    }
+    .page-head::after {
+      content: ""; position: absolute; z-index: -1; border-radius: 50%;
+      width: 340px; height: 340px; background: rgba(45, 106, 79, 0.07);
+      bottom: -200px; left: -100px;
+    }
+    .eyebrow {
+      display: inline-block; font-size: .8rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--coral);
+      margin-bottom: 18px;
+    }
+    /* Typography matches index.html: h1 = .hero h1, subtitle = .tagline */
+    .page-head h1 {
+      font-family: var(--serif); font-weight: 700; color: var(--forest);
+      font-size: clamp(2.8rem, 8vw, 6rem); line-height: 1.02; letter-spacing: -0.01em;
+    }
+    .page-head h1 em { font-style: italic; font-weight: 500; color: var(--coral); }
+    .page-head p {
+      font-family: var(--serif); font-style: italic; color: var(--muted);
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem); margin: 22px auto 0; max-width: 34ch;
+    }
+
+    /* ---------- Post grid ---------- */
+    .posts-section { padding: 16px 0 96px; }
+    .posts {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 36px;
+    }
+    .post-card {
+      background: var(--card); border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .post-card:hover, .post-card:focus-within {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-hover);
+    }
+    /* display:block matters: this wrapper is an <a>, and inline elements don't clip,
+       so without it the zoomed image would spill out of its frame. */
+    .post-thumb {
+      display: block; position: relative; aspect-ratio: 16 / 9; overflow: hidden;
+      background: var(--cream-deep);
+    }
+    .post-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .3s ease;
+    }
+    .post-card:hover .post-thumb img,
+    .post-card:focus-within .post-thumb img { transform: scale(1.05); }
+    .tag {
+      position: absolute; top: 16px; left: 16px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--forest); background: var(--cream);
+      padding: 4px 12px; border-radius: 999px;
+    }
+    /* Card typography matches index.html .post-card */
+    .post-body { padding: 22px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+    .post-meta { font-size: .82rem; color: var(--coral); font-weight: 700; letter-spacing: .04em; }
+    .post-meta .place { color: var(--muted); font-weight: 500; }
+    .post-body h2 {
+      font-family: var(--serif); color: var(--forest);
+      font-size: 1.35rem; line-height: 1.25; margin: 8px 0 10px;
+    }
+    .post-body h2 a { text-decoration: none; }
+    .post-body h2 a:hover { color: var(--coral-dark); }
+    .excerpt {
+      color: var(--muted); font-size: .96rem; line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .read-more {
+      margin-top: 16px; align-self: flex-start;
+      color: var(--coral); font-weight: 700; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .read-more .arrow { transition: transform .25s ease; }
+    .read-more:hover { color: var(--coral-dark); }
+    .read-more:hover .arrow { transform: translateX(4px); }
+
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .posts { gap: 28px; }
+    }
+    @media (max-width: 720px) {
+      .container { padding: 0 16px; }
+      .nav-toggle { display: inline-flex; }
+      .nav-links {
+        position: absolute; top: 68px; left: 0; right: 0;
+        flex-direction: column; gap: 0; background: var(--cream);
+        border-bottom: 1px solid rgba(45,106,79,0.12);
+        max-height: 0; overflow: hidden; transition: max-height .3s ease;
+      }
+      .nav-links.open { max-height: 240px; }
+      .nav-links li a { display: block; padding: 16px 24px; }
+      .nav-links a::after { display: none; }
+
+      .page-head { padding: 64px 0 44px; }
+      .posts { grid-template-columns: 1fr; gap: 24px; }
+      .posts-section { padding-bottom: 64px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+      .post-card:hover, .post-card:focus-within { transform: none; }
+    }
+  </style>
+  <link rel="stylesheet" href="./footer.css" />
+  <script src="./reveal.js" defer></script>
+</head>
+<body>
+
+  <!-- Sticky Navigation -->
+  <nav class="nav" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="./index.html" class="logo">Wander<span>.</span>Suzy</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./blog.html" class="active" aria-current="page">Blog</a></li>
+        <li><a href="./about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Page header -->
+  <header class="page-head">
+    <div class="container">
+      <span class="eyebrow">The Journal</span>
+      <h1>Stories <em>from</em> the Road</h1>
+      <p>Food, culture and adventure — one corner of the world at a time.</p>
+    </div>
+  </header>
+
+  <!-- Posts -->
+  <main class="posts-section">
+    <div class="container">
+      <div class="posts" id="posts"></div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <a href="./index.html" class="logo">Wander<span>.</span>Suzy</a>
+        <p class="copyright">&copy; 2025 Wander With Suzy</p>
+      </div>
+
+      <!-- Replace these links with Suzy's real profile URLs -->
+      <ul class="socials" aria-label="Suzy on social media">
+        <li>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X (formerly Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </li>
+      </ul>
+
+      <a href="#top" class="back-to-top">Back to top <span class="arrow" aria-hidden="true">↑</span></a>
+    </div>
+    <div class="container">
+      <p class="credit">Destination photos: <a href="https://commons.wikimedia.org/">Wikimedia Commons</a> contributors (CC licensed).</p>
+    </div>
+  </footer>
+
+  <script src="./posts.js"></script>
+  <script>
+    // Post data (titles, dates, excerpts, full articles) lives in posts.js
+    const posts = window.POSTS;
+
+    const fmt = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+    document.getElementById("posts").innerHTML = posts.map(p => `
+      <article class="post-card">
+        <a href="./post.html?p=${p.slug}" class="post-thumb" tabindex="-1" aria-hidden="true">
+          <img src="${p.image}" alt="" loading="lazy" width="800" height="450" />
+          <span class="tag">${p.category}</span>
+        </a>
+        <div class="post-body">
+          <div class="post-meta">
+            <time datetime="${p.date}">${fmt.format(new Date(p.date + "T12:00:00"))}</time>
+            <span class="place"> · ${p.place}</span>
+          </div>
+          <h2><a href="./post.html?p=${p.slug}">${p.title}</a></h2>
+          <p class="excerpt">${p.excerpt}</p>
+          <a href="./post.html?p=${p.slug}" class="read-more" aria-label="Read more: ${p.title}">Read More <span class="arrow">→</span></a>
+        </div>
+      </article>`).join("");
+
+    // ---------- Mobile nav ----------
+    const toggle = document.querySelector(".nav-toggle");
+    const links = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+
+  </script>
+</body>
+</html>

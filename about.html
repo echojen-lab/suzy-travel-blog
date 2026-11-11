@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Wander With Suzy</title>
+  <meta name="description" content="Meet Suzy — a Lisbon-based travel blogger collecting stories from every corner of the world." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #FFF8F0;
+      --cream-deep: #F6EADB;
+      --coral: #FF6B6B;
+      --coral-dark: #E85555;
+      --forest: #2D6A4F;
+      --forest-dark: #1F4D39;
+      --ink: #2B2B2B;
+      --muted: #6B6560;
+      --card: #FFFFFF;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(45, 106, 79, 0.10);
+      --shadow-hover: 0 22px 48px rgba(45, 106, 79, 0.18);
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", system-ui, -apple-system, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+
+    .container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    .narrow { max-width: 760px; }
+
+    /* ---------- Navigation (shared) ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(255, 248, 240, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(45, 106, 79, 0.12);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .logo {
+      font-family: var(--serif); font-weight: 700; font-size: 1.35rem;
+      color: var(--forest); text-decoration: none;
+    }
+    .logo span { color: var(--coral); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; font-weight: 500; color: var(--forest);
+      position: relative; padding: 4px 0;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; left: 0; bottom: -2px;
+      width: 0; height: 2px; background: var(--coral);
+      transition: width .25s ease;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    .nav-toggle {
+      display: none; background: none; border: 0; cursor: pointer;
+      width: 44px; height: 44px; align-items: center; justify-content: center;
+    }
+    .nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+      display: block; width: 22px; height: 2px; background: var(--forest);
+      position: relative; transition: transform .25s ease, background .25s ease;
+    }
+    .nav-toggle span::before, .nav-toggle span::after { content: ""; position: absolute; left: 0; }
+    .nav-toggle span::before { top: -7px; }
+    .nav-toggle span::after { top: 7px; }
+    .nav-toggle[aria-expanded="true"] span { background: transparent; }
+    .nav-toggle[aria-expanded="true"] span::before { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span::after { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 96px 0 72px; text-align: center;
+    }
+    .hero::before {
+      content: ""; position: absolute; z-index: -1; border-radius: 50%;
+      width: 480px; height: 480px; background: rgba(255, 107, 107, 0.11);
+      top: -200px; right: -140px;
+    }
+    .hero::after {
+      content: ""; position: absolute; z-index: -1; border-radius: 50%;
+      width: 380px; height: 380px; background: rgba(45, 106, 79, 0.07);
+      bottom: -200px; left: -120px;
+    }
+    .headshot {
+      width: 200px; height: 200px; margin: 0 auto 28px;
+      border-radius: 50%; padding: 6px;
+      background: conic-gradient(var(--coral), var(--forest), var(--coral));
+      box-shadow: var(--shadow);
+    }
+    .headshot img {
+      width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+      border: 5px solid var(--cream); background: var(--cream-deep);
+    }
+    .eyebrow {
+      display: inline-block; font-size: .8rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--coral);
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-family: var(--serif); font-weight: 700; color: var(--forest);
+      font-size: clamp(2.6rem, 7vw, 4.5rem); line-height: 1.05;
+    }
+    .hero h1 em { font-style: italic; font-weight: 500; color: var(--coral); }
+    .hero .sub {
+      font-family: var(--serif); font-style: italic; color: var(--muted);
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem); margin-top: 14px;
+    }
+
+    /* ---------- Bio ---------- */
+    .bio { padding: 8px 0 88px; }
+    .bio p {
+      font-size: 1.12rem; color: var(--ink); margin-bottom: 22px; line-height: 1.8;
+    }
+    .bio p:first-child::first-letter {
+      font-family: var(--serif); font-weight: 700; color: var(--coral);
+      float: left; font-size: 4.2rem; line-height: .9; padding: 6px 12px 0 0;
+    }
+    .signature {
+      font-family: var(--serif); font-style: italic; font-size: 1.6rem;
+      color: var(--forest); margin-top: 8px;
+    }
+
+    /* ---------- Section heads ---------- */
+    section { padding: 88px 0; }
+    .section-head { text-align: center; margin-bottom: 44px; }
+    .section-head h2 {
+      font-family: var(--serif); color: var(--forest);
+      font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.15;
+    }
+    .section-head p { color: var(--muted); margin-top: 10px; }
+
+    /* ---------- Stats ---------- */
+    .stats-section { background: var(--cream-deep); }
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+    }
+    .stat-card {
+      background: var(--card); border-radius: var(--radius);
+      padding: 40px 20px 34px; text-align: center;
+      box-shadow: var(--shadow); position: relative; overflow: hidden;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .stat-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: var(--coral);
+    }
+    .stat-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-hover); }
+    .stat-number {
+      display: block; font-family: var(--serif); font-weight: 700;
+      font-size: 48px; line-height: 1.05; white-space: nowrap;
+      color: var(--coral); font-variant-numeric: lining-nums tabular-nums;
+    }
+    .stat-label {
+      display: block; margin-top: 12px;
+      font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--forest);
+    }
+
+    /* ---------- Newsletter ---------- */
+    .newsletter-card {
+      background: var(--forest); color: #fff;
+      border-radius: 24px; padding: 64px 40px; text-align: center;
+      position: relative; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .newsletter-card::before {
+      content: ""; position: absolute; border-radius: 50%;
+      width: 320px; height: 320px; background: rgba(255, 107, 107, 0.18);
+      top: -160px; right: -100px;
+    }
+    .newsletter-card::after {
+      content: ""; position: absolute; border-radius: 50%;
+      width: 240px; height: 240px; background: rgba(255, 255, 255, 0.06);
+      bottom: -140px; left: -60px;
+    }
+    .newsletter-card > * { position: relative; z-index: 1; }
+    .newsletter-card h2 {
+      font-family: var(--serif); font-size: clamp(2rem, 4.5vw, 2.8rem); line-height: 1.15;
+    }
+    .newsletter-card .lead {
+      color: rgba(255,255,255,0.82); margin: 12px auto 32px; max-width: 46ch;
+    }
+    .signup {
+      display: flex; gap: 12px; max-width: 520px; margin: 0 auto;
+    }
+    .signup input {
+      flex: 1; min-width: 0;
+      font: inherit; font-size: 1rem; color: var(--ink);
+      padding: 15px 22px; border-radius: 999px;
+      border: 2px solid transparent; background: var(--cream);
+      outline: none; transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .signup input:focus { border-color: var(--coral); box-shadow: 0 0 0 4px rgba(255,107,107,0.3); }
+    .signup input.invalid { border-color: var(--coral); }
+    .signup button {
+      font: inherit; font-weight: 700; font-size: 1rem; cursor: pointer;
+      background: var(--coral); color: #fff; border: 0;
+      padding: 15px 32px; border-radius: 999px;
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.35);
+      transition: background .2s ease, transform .2s ease;
+    }
+    .signup button:hover { background: var(--coral-dark); transform: translateY(-2px); }
+    .form-error {
+      color: #FFD3D3; font-size: .9rem; margin-top: 12px; min-height: 1.4em;
+    }
+    .success {
+      font-family: var(--serif); font-size: clamp(1.3rem, 3vw, 1.7rem);
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px; padding: 18px 32px; display: inline-block;
+      animation: success-in .75s ease-out both;
+    }
+    .success[hidden], .signup[hidden] { display: none; }
+    /* Fade in with a slight bounce: rise, overshoot a touch, settle */
+    @keyframes success-in {
+      0%   { opacity: 0; transform: translateY(14px) scale(.96); }
+      55%  { opacity: 1; transform: translateY(-6px) scale(1.02); }
+      78%  { transform: translateY(2px) scale(.995); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Confetti dots (positioned on the page where the Subscribe button was) */
+    .confetti-dot {
+      position: fixed; z-index: 2000; pointer-events: none;
+      width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%;
+      border: 2px solid #fff;  /* keeps the green dots visible on the green panel */
+    }
+
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .container { padding: 0 16px; }
+      .nav-toggle { display: inline-flex; }
+      .nav-links {
+        position: absolute; top: 68px; left: 0; right: 0;
+        flex-direction: column; gap: 0; background: var(--cream);
+        border-bottom: 1px solid rgba(45,106,79,0.12);
+        max-height: 0; overflow: hidden; transition: max-height .3s ease;
+      }
+      .nav-links.open { max-height: 240px; }
+      .nav-links li a { display: block; padding: 16px 24px; }
+      .nav-links a::after { display: none; }
+
+      .hero { padding: 64px 0 48px; }
+      .headshot { width: 160px; height: 160px; }
+      section { padding: 60px 0; }
+      .bio { padding-bottom: 60px; }
+      .bio p { font-size: 1.04rem; }
+      .stats { gap: 14px; }
+      .stat-card { padding: 30px 12px 26px; }
+      .newsletter-card { padding: 48px 22px; border-radius: 20px; }
+      .signup { flex-direction: column; }
+      .signup button { width: 100%; }
+      .success { border-radius: 20px; padding: 18px 22px; }
+    }
+
+    /* "47,000" at 48px needs ~160px; below this width two cards per row are too narrow */
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="./footer.css" />
+  <script src="./reveal.js" defer></script>
+</head>
+<body>
+
+  <!-- Sticky Navigation -->
+  <nav class="nav" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="./index.html" class="logo">Wander<span>.</span>Suzy</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span>
+      </button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./blog.html">Blog</a></li>
+        <li><a href="./about.html" class="active" aria-current="page">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="container">
+      <div class="headshot">
+        <img src="https://picsum.photos/seed/suzy-headshot/400/400" alt="Headshot of Suzy" width="400" height="400" />
+      </div>
+      <span class="eyebrow">Hello, I'm</span>
+      <h1>Suzy <em>the Wanderer</em></h1>
+      <p class="sub">Travel writer · Food chaser · Lisbon-based</p>
+    </div>
+  </header>
+
+  <!-- Bio -->
+  <section class="bio" aria-label="About Suzy">
+    <div class="container narrow">
+      <p>I grew up in Lisbon, in a pastel-pink building where the smell of fresh pastéis de nata drifted up from the bakery downstairs every morning. Watching the ferries cross the Tagus at golden hour, I always wondered where they were headed next. A couple of years ago I finally stopped wondering — I packed one backpack, bought a one-way ticket, and promised myself I'd say yes to every street-food stall, overnight train and wrong turn that came my way.</p>
+      <p>Since then I've wandered through Tokyo's neon-lit alleys, haggled my way around the souks of Marrakech, and eaten more bowls of pho in Hanoi than I'd care to admit. This blog is where I share the places, plates and people that stayed with me — honest stories, practical tips and the occasional sunset I couldn't stop photographing. Lisbon is still home base, but the whole world feels a little more like home now. I hope these stories help you find your own corner of it.</p>
+      <p class="signature">— Suzy</p>
+    </div>
+  </section>
+
+  <!-- Travel Stats -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Travel Stats</h2>
+        <p>The journey so far, by the numbers.</p>
+      </div>
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-number" data-target="8">8</span>
+          <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" data-target="47000">47,000</span>
+          <span class="stat-label">km</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" data-target="2">2</span>
+          <span class="stat-label">Years</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" data-target="156">156</span>
+          <span class="stat-label">Posts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section>
+    <div class="container narrow">
+      <div class="newsletter-card">
+        <h2>Join the Journey</h2>
+        <p class="lead">New stories, hidden-gem guides and the occasional postcard from the road — straight to your inbox. No spam, ever.</p>
+
+        <form class="signup" id="signup-form" novalidate>
+          <label for="email" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Email address</label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" required />
+          <button type="submit">Subscribe</button>
+        </form>
+        <p class="form-error" id="form-error" role="alert"></p>
+
+        <p class="success" id="success" role="status" hidden>🎉 You're in! Check your inbox for adventures.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <a href="./index.html" class="logo">Wander<span>.</span>Suzy</a>
+        <p class="copyright">&copy; 2025 Wander With Suzy</p>
+      </div>
+
+      <!-- Replace these links with Suzy's real profile URLs -->
+      <ul class="socials" aria-label="Suzy on social media">
+        <li>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+          </a>
+        </li>
+        <li>
+          <a href="https://x.com/" target="_blank" rel="noopener" aria-label="X (formerly Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </li>
+      </ul>
+
+      <a href="#top" class="back-to-top">Back to top <span class="arrow" aria-hidden="true">↑</span></a>
+    </div>
+    <div class="container">
+      <p class="credit">Destination photos: <a href="https://commons.wikimedia.org/">Wikimedia Commons</a> contributors (CC licensed).</p>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Mobile nav ----------
+    const toggle = document.querySelector(".nav-toggle");
+    const links = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+
+    // ---------- Count-up stats when scrolled into view ----------
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const numbers = document.querySelectorAll(".stat-number");
+    const fmt = new Intl.NumberFormat("en-US");
+
+    const countUp = (el) => {
+      const target = Number(el.dataset.target);
+      const duration = 1400;
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = fmt.format(Math.round(target * eased));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { countUp(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.6 });
+      numbers.forEach(n => io.observe(n));
+    }
+
+    // ---------- Newsletter ----------
+    const form = document.getElementById("signup-form");
+    const email = document.getElementById("email");
+    const error = document.getElementById("form-error");
+    const success = document.getElementById("success");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const value = email.value.trim();
+      if (!value || !email.checkValidity()) {
+        email.classList.add("invalid");
+        error.textContent = "Please enter a valid email address.";
+        email.focus();
+        return;
+      }
+      // Remember where the button is before the form disappears
+      const btnBox = form.querySelector("button").getBoundingClientRect();
+      form.hidden = true;
+      error.hidden = true;
+      success.hidden = false;
+      burstConfetti(btnBox.left + btnBox.width / 2, btnBox.top + btnBox.height / 2);
+    });
+
+    // ---------- Confetti burst ----------
+    // 6 small coral and forest-green dots shoot out from (x, y), arc and fall, then fade.
+    function burstConfetti(x, y) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!Element.prototype.animate) return;
+      const colors = ["#FF6B6B", "#2D6A4F"];
+      const COUNT = 6;
+      for (let i = 0; i < COUNT; i++) {
+        const dot = document.createElement("span");
+        dot.className = "confetti-dot";
+        dot.style.left = x + "px";
+        dot.style.top = y + "px";
+        dot.style.background = colors[i % 2];
+        document.body.appendChild(dot);
+
+        // Spread the dots in an upward fan (from about 200° to 340°), with a little randomness
+        const angle = (200 + (140 / (COUNT - 1)) * i + (Math.random() * 16 - 8)) * Math.PI / 180;
+        const dist = 70 + Math.random() * 45;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+
+        dot.animate([
+          { transform: "translate(0, 0) scale(.4)", opacity: 1 },
+          { transform: `translate(${dx}px, ${dy}px) scale(1)`, opacity: 1, offset: .55 },
+          { transform: `translate(${dx * 1.15}px, ${dy + 45}px) scale(.8)`, opacity: 0 }
+        ], {
+          duration: 950 + Math.random() * 250,
+          easing: "cubic-bezier(.15, .7, .35, 1)",
+          fill: "forwards"
+        }).onfinish = () => dot.remove();
+      }
+    }
+
+    email.addEventListener("input", () => {
+      email.classList.remove("invalid");
+      error.textContent = "";
+    });
+
+  </script>
+</body>
+</html>

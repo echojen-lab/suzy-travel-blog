@@ -1,0 +1,35 @@
+# ---- Operating system clutter ----
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+# macOS
+.DS_Store
+._*
+
+# ---- OneDrive / Office temporary files ----
+~$*
+*.tmp
+*.temp
+
+# ---- Editors ----
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- Claude Code local settings ----
+.claude/
+
+# ---- Secrets (never commit these) ----
+.env
+.env.*
+*.pem
+*.key
+
+# ---- Tooling (if added later) ----
+node_modules/
+dist/
+*.log
+npm-debug.log*
